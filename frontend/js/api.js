@@ -63,6 +63,50 @@ class ApiService {
     static async getAutores() {
         return this.request('/autores');
     }
+
+    static async registroAutor(data) {
+        return this.request('/autores/registro', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    static async loginAutor(credentials) {
+        return this.request('/autores/login', {
+            method: 'POST',
+            body: JSON.stringify(credentials)
+        });
+    }
+
+    static async updateAutor(id, data) {
+        return this.request(`/autores/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    // Categorias
+    static async getCategorias() {
+        return this.request('/categorias');
+    }
+
+    // Estados
+    static async getEstados() {
+        return this.request('/estados');
+    }
+
+    static async updatePublicacao(id, data) {
+        return this.request(`/publicacoes/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data)
+        });
+    }
+
+    static async deletePublicacao(id) {
+        return this.request(`/publicacoes/${id}`, {
+            method: 'DELETE'
+        });
+    }
 }
 
 window.ApiService = ApiService;

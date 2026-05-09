@@ -3,50 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - NewsHub</title>
+    <title>Dashboard Admin - NewsHub</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Dashboard Administrador</h1>
-        <button id="logout-btn" class="btn">Logout</button>
-        
-        <h2>Publicações Pendentes</h2>
-        <div id="pending-publications">
-            <!-- Pending publications will be loaded here -->
+        <div class="flex-between mb-3">
+            <h1>⚙️ Dashboard Administrador</h1>
+            <button id="logout-btn" class="btn btn-danger">Logout</button>
         </div>
 
-        <h2>Criar Nova Publicação</h2>
-        <form id="create-publication-form">
-            <div class="form-group">
-                <label for="titulo">Título:</label>
-                <input type="text" id="titulo" required>
+        <div class="section">
+            <h2>Publicações Pendentes de Aprovação</h2>
+            <div id="pending-publications" class="grid">
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                    <p>Carregando...</p>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="resumo">Resumo:</label>
-                <textarea id="resumo" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="conteudo">Conteúdo:</label>
-                <textarea id="conteudo" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="idautor">Autor ID:</label>
-                <input type="number" id="idautor" required>
-            </div>
-            <div class="form-group">
-                <label for="idCategoria">Categoria ID:</label>
-                <input type="number" id="idCategoria">
-            </div>
-            <button type="submit" class="btn">Criar Publicação</button>
-        </form>
+        </div>
+
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 2rem 0;">
+
+        <div class="section">
+            <h2>Criar Nova Publicação</h2>
+            <form id="create-publication-form">
+                <div class="form-group">
+                    <label for="titulo">Título:</label>
+                    <input type="text" id="titulo" required placeholder="Título da publicação">
+                </div>
+                <div class="form-group">
+                    <label for="resumo">Resumo:</label>
+                    <textarea id="resumo" required placeholder="Resumo ou descrição breve..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="conteudo">Conteúdo Completo:</label>
+                    <textarea id="conteudo" required placeholder="Conteúdo completo da publicação..." style="min-height: 200px;"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="idautor">ID do Autor:</label>
+                        <input type="number" id="idautor" required placeholder="Exemplo: 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="idCategoria">ID da Categoria:</label>
+                        <input type="number" id="idCategoria" placeholder="Deixe em branco se não houver categoria">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="imagem_destaque">URL da Imagem:</label>
+                        <input type="text" id="imagem_destaque" placeholder="URL da imagem de destaque">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-block">Criar Publicação</button>
+            </form>
+        </div>
     </div>
 
     <script src="../js/main.js"></script>
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script>
-        if (!AuthService.isLoggedIn()) {
+        // Verificar autenticação
+        if (!AuthService.isLoggedIn() || !AuthService.isAdmin()) {
             window.location.href = 'login.html';
         }
 
@@ -60,28 +79,52 @@
                 const pending = publicacoes.filter(p => p.estado === 'pendente');
                 
                 const container = document.getElementById('pending-publications');
+                
+                if (pending.length === 0) {
+                    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;"><p>✓ Nenhuma publicação pendente!</p></div>';
+                    return;
+                }
+
                 container.innerHTML = pending.map(pub => `
                     <div class="card">
                         <div class="card-content">
                             <h3>${pub.titulo}</h3>
-                            <p>${truncateText(pub.resumo)}</p>
-                            <button class="btn" onclick="validatePublication(${pub.idPublicacao})">Aprovar</button>
+                            <p>${truncateText(pub.resumo, 100)}</p>
+                            <p><small><strong>${pub.primeiro_nome} ${pub.ultimo_nome}</strong></small></p>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <button class="btn btn-small btn-success" onclick="validatePublication(${pub.idPublicacao})">✓ Aprovar</button>
+                                <button class="btn btn-small btn-danger" onclick="rejectPublication(${pub.idPublicacao})">✕ Rejeitar</button>
+                            </div>
                         </div>
                     </div>
                 `).join('');
             } catch (error) {
                 console.error('Error loading pending publications:', error);
+                document.getElementById('pending-publications').innerHTML = '<div style="grid-column: 1/-1;" class="alert alert-error">Erro ao carregar publicações pendentes.</div>';
             }
         }
 
         async function validatePublication(id) {
             try {
                 await ApiService.request(`/publicacoes/${id}/validate`, { method: 'POST' });
-                showMessage('Publicação aprovada!');
+                showMessage('Publicação aprovada!', 'success');
                 loadPendingPublications();
             } catch (error) {
                 console.error('Error validating publication:', error);
                 showMessage('Erro ao aprovar publicação', 'error');
+            }
+        }
+
+        async function rejectPublication(id) {
+            if (confirm('Tem certeza que deseja rejeitar esta publicação?')) {
+                try {
+                    await ApiService.updatePublicacao(id, { idestado: 4 }); // 4 = rejeitado
+                    showMessage('Publicação rejeitada!', 'success');
+                    loadPendingPublications();
+                } catch (error) {
+                    console.error('Error rejecting publication:', error);
+                    showMessage('Erro ao rejeitar publicação', 'error');
+                }
             }
         }
 
@@ -91,15 +134,17 @@
                 titulo: document.getElementById('titulo').value,
                 resumo: document.getElementById('resumo').value,
                 conteudo: document.getElementById('conteudo').value,
-                idestado: 1, // pendente
+                imagem_destaque: document.getElementById('imagem_destaque').value || null,
+                idestado: 3, // publicado direto pelo admin
                 idautor: parseInt(document.getElementById('idautor').value),
                 idCategoria: parseInt(document.getElementById('idCategoria').value) || null
             };
 
             try {
                 await ApiService.createPublicacao(data);
-                showMessage('Publicação criada com sucesso!');
+                showMessage('Publicação criada e publicada com sucesso!', 'success');
                 e.target.reset();
+                loadPendingPublications();
             } catch (error) {
                 console.error('Error creating publication:', error);
                 showMessage('Erro ao criar publicação', 'error');

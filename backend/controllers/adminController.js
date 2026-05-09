@@ -78,13 +78,19 @@ class AdminController {
         try {
             const { username, senha } = req.body;
             const admin = await AdminModel.getByUsername(username);
-            if (!admin) return res.status(401).json({ message: 'Invalid credentials' });
+            if (!admin) return res.status(401).json({ message: 'Credenciais inválidas' });
 
             const isValid = await bcrypt.compare(senha, admin.senha);
-            if (!isValid) return res.status(401).json({ message: 'Invalid credentials' });
+            if (!isValid) return res.status(401).json({ message: 'Credenciais inválidas' });
 
-            const token = jwt.sign({ id: admin.idAdm, role: 'admin' }, env.JWT_SECRET, { expiresIn: '1h' });
-            res.json({ token });
+            const token = jwt.sign({ id: admin.idAdm, role: 'admin' }, env.JWT_SECRET, { expiresIn: '24h' });
+            res.json({ 
+                token,
+                id: admin.idAdm,
+                username: admin.username,
+                nome: `${admin.primeiro_nome} ${admin.ultimo_nome}`,
+                email: admin.email
+            });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }

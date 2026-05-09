@@ -8,63 +8,96 @@
 </head>
 <body>
     <div class="container">
-        <div id="publication-details">
-            <!-- Publication details will be loaded here -->
+        <div id="publication-details" class="section">
+            <div class="text-center" style="padding: 2rem;">
+                <p>Carregando artigo...</p>
+            </div>
         </div>
 
-        <h2>Comentários</h2>
-        <div id="comments">
-            <!-- Comments will be loaded here -->
-        </div>
+        <hr style="border: none; border-top: 2px solid var(--border); margin: 2rem 0;">
 
-        <form id="comment-form">
-            <div class="form-group">
-                <label for="comment-content">Seu comentário:</label>
-                <textarea id="comment-content" required></textarea>
+        <div class="section">
+            <h2>Comentários</h2>
+            <div id="comments" class="mb-3">
+                <p>Carregando comentários...</p>
             </div>
-            <div class="form-group">
-                <label for="comment-author">Seu ID de Autor:</label>
-                <input type="number" id="comment-author" required>
-            </div>
-            <button type="submit" class="btn">Comentar</button>
-        </form>
+
+            <h3>Deixe um comentário</h3>
+            <form id="comment-form">
+                <div class="form-group">
+                    <label for="comment-author">Seu ID de Autor/Leitor:</label>
+                    <input type="number" id="comment-author" name="comment-author" required placeholder="Exemplo: 1">
+                </div>
+                <div class="form-group">
+                    <label for="comment-content">Seu comentário:</label>
+                    <textarea id="comment-content" name="comment-content" required placeholder="Digite seu comentário..."></textarea>
+                </div>
+                <button type="submit" class="btn">Enviar Comentário</button>
+            </form>
+        </div>
     </div>
 
     <script src="../js/main.js"></script>
     <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const publicationId = urlParams.get('id');
+        const publicationId = getQueryParam('id');
 
         async function loadPublication() {
+            if (!publicationId) {
+                document.getElementById('publication-details').innerHTML = '<div class="alert alert-error">Publicação não encontrada.</div>';
+                return;
+            }
+
             try {
                 const pub = await ApiService.getPublicacao(publicationId);
                 const details = document.getElementById('publication-details');
                 details.innerHTML = `
-                    <h1>${pub.titulo}</h1>
-                    <p><small>Por ${pub.primeiro_nome} ${pub.ultimo_nome} em ${formatDate(pub.data_publicacao)}</small></p>
-                    ${pub.imagem_destaque ? `<img src="${pub.imagem_destaque}" alt="${pub.titulo}" style="max-width:100%;">` : ''}
-                    <p>${pub.conteudo}</p>
+                    <article>
+                        ${pub.imagem_destaque ? `<img src="${pub.imagem_destaque}" alt="${pub.titulo}" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 2rem;" onerror="this.style.display='none'">` : ''}
+                        <h1>${pub.titulo}</h1>
+                        <div class="card-meta mb-3">
+                            <div>
+                                <small>Por <strong>${pub.primeiro_nome} ${pub.ultimo_nome}</strong></small><br>
+                                <small>${formatDate(pub.data_publicacao)}</small>
+                            </div>
+                            <span class="estado estado-${pub.estado}">${pub.estado.toUpperCase()}</span>
+                        </div>
+                        <p class="text-light mb-3" style="font-size: 1.1rem;">${pub.resumo}</p>
+                        <div style="line-height: 1.8; color: var(--text);">${pub.conteudo}</div>
+                        ${pub.categoria ? `<p class="mt-3"><strong>Categoria:</strong> ${pub.categoria}</p>` : ''}
+                    </article>
                 `;
             } catch (error) {
                 console.error('Error loading publication:', error);
+                document.getElementById('publication-details').innerHTML = '<div class="alert alert-error">Erro ao carregar a publicação.</div>';
             }
         }
 
         async function loadComments() {
+            if (!publicationId) return;
+
             try {
                 const comments = await ApiService.getComentarios(publicationId);
                 const container = document.getElementById('comments');
+                
+                if (comments.length === 0) {
+                    container.innerHTML = '<p>Nenhum comentário ainda. Seja o primeiro a comentar!</p>';
+                    return;
+                }
+
                 container.innerHTML = comments.map(comment => `
-                    <div class="card">
+                    <div class="card mb-2">
                         <div class="card-content">
+                            <p><strong>${comment.primeiro_nome} ${comment.ultimo_nome}</strong></p>
                             <p>${comment.conteudo}</p>
-                            <p><small>Por ${comment.primeiro_nome} ${comment.ultimo_nome} em ${formatDate(comment.data_hora)}</small></p>
+                            <p><small>${formatDate(comment.data_hora)}</small></p>
                         </div>
                     </div>
                 `).join('');
             } catch (error) {
                 console.error('Error loading comments:', error);
+                document.getElementById('comments').innerHTML = '<div class="alert alert-warning">Erro ao carregar comentários.</div>';
             }
         }
 
@@ -78,7 +111,7 @@
 
             try {
                 await ApiService.createComentario(data);
-                showMessage('Comentário adicionado!');
+                showMessage('Comentário adicionado com sucesso!', 'success');
                 e.target.reset();
                 loadComments();
             } catch (error) {

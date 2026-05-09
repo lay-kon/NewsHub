@@ -8,36 +8,70 @@
 </head>
 <body>
     <div class="container">
-        <h1>Gerenciar Publicações</h1>
+        <h1>📚 Todas as Publicações</h1>
+        
+        <div class="mb-3">
+            <input type="text" id="search" placeholder="🔍 Pesquisar publicações..." style="width: 100%; max-width: 500px; padding: 0.75rem; border: 1px solid var(--border); border-radius: 6px;">
+        </div>
+
         <div id="publications-list" class="grid">
-            <!-- Publications will be loaded here -->
+            <div class="card" style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                <p>Carregando publicações...</p>
+            </div>
         </div>
     </div>
 
     <script src="../js/main.js"></script>
     <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
     <script>
+        let allPublications = [];
+
         async function loadPublications() {
             try {
-                const publicacoes = await ApiService.getPublicacoes();
-                
-                const grid = document.getElementById('publications-list');
-                grid.innerHTML = publicacoes.map(pub => `
-                    <div class="card">
-                        <div class="card-content">
-                            <h3>${pub.titulo}</h3>
-                            <p>${truncateText(pub.resumo)}</p>
-                            <p>Estado: ${pub.estado}</p>
-                            <p><small>Por ${pub.primeiro_nome} ${pub.ultimo_nome}</small></p>
-                            <a href="detalhes.html?id=${pub.idPublicacao}" class="btn">Ver Detalhes</a>
-                        </div>
-                    </div>
-                `).join('');
+                allPublications = await ApiService.getPublicacoes();
+                renderPublications(allPublications);
             } catch (error) {
                 console.error('Error loading publications:', error);
-                showMessage('Erro ao carregar publicações', 'error');
+                document.getElementById('publications-list').innerHTML = '<div class="alert alert-error" style="grid-column: 1/-1;">Erro ao carregar publicações.</div>';
             }
         }
+
+        function renderPublications(publications) {
+            const grid = document.getElementById('publications-list');
+            
+            if (publications.length === 0) {
+                grid.innerHTML = '<div class="alert alert-info" style="grid-column: 1/-1;">Nenhuma publicação encontrada.</div>';
+                return;
+            }
+
+            grid.innerHTML = publications.map(pub => `
+                <div class="card">
+                    ${pub.imagem_destaque ? `<img src="${pub.imagem_destaque}" alt="${pub.titulo}" onerror="this.style.display='none'">` : ''}
+                    <div class="card-content">
+                        <h3>${pub.titulo}</h3>
+                        <p>${truncateText(pub.resumo, 150)}</p>
+                        <div class="card-meta">
+                            <div>
+                                <small><strong>${pub.primeiro_nome} ${pub.ultimo_nome}</strong></small><br>
+                                <small>${formatDate(pub.data_publicacao)}</small>
+                            </div>
+                            <span class="estado estado-${pub.estado}">${pub.estado}</span>
+                        </div>
+                        <a href="detalhes.html?id=${pub.idPublicacao}" class="btn btn-small" style="margin-top: 1rem;">Ver artigo</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('search').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = allPublications.filter(pub => 
+                pub.titulo.toLowerCase().includes(query) || 
+                pub.resumo.toLowerCase().includes(query)
+            );
+            renderPublications(filtered);
+        });
 
         loadPublications();
     </script>

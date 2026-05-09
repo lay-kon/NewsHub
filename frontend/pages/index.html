@@ -7,15 +7,23 @@
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
+    <div class="hero">
+        <h1>📰 Bem-vindo ao NewsHub</h1>
+        <p>Seu portal de notícias confiável e atualizado</p>
+    </div>
+
     <div class="container">
-        <h1>Últimas Notícias</h1>
+        <h2>Últimas Notícias</h2>
         <div id="news-grid" class="grid">
-            <!-- News cards will be loaded here -->
+            <div class="card" style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                <p>Carregando notícias...</p>
+            </div>
         </div>
     </div>
 
     <script src="../js/main.js"></script>
     <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
     <script>
         async function loadNews() {
             try {
@@ -23,20 +31,29 @@
                 const published = publicacoes.filter(p => p.estado === 'publicado');
                 
                 const grid = document.getElementById('news-grid');
+                
+                if (published.length === 0) {
+                    grid.innerHTML = '<div class="alert alert-info" style="grid-column: 1/-1;">Nenhuma notícia publicada no momento.</div>';
+                    return;
+                }
+                
                 grid.innerHTML = published.map(pub => `
                     <div class="card">
-                        ${pub.imagem_destaque ? `<img src="${pub.imagem_destaque}" alt="${pub.titulo}">` : ''}
+                        ${pub.imagem_destaque ? `<img src="${pub.imagem_destaque}" alt="${pub.titulo}" onerror="this.style.display='none'">` : ''}
                         <div class="card-content">
                             <h3>${pub.titulo}</h3>
-                            <p>${truncateText(pub.resumo)}</p>
-                            <p><small>Por ${pub.primeiro_nome} ${pub.ultimo_nome} em ${formatDate(pub.data_publicacao)}</small></p>
-                            <a href="detalhes.html?id=${pub.idPublicacao}" class="btn">Ler mais</a>
+                            <p>${truncateText(pub.resumo, 150)}</p>
+                            <div class="card-meta">
+                                <small>Por <strong>${pub.primeiro_nome} ${pub.ultimo_nome}</strong></small>
+                                <small>${formatDate(pub.data_publicacao)}</small>
+                            </div>
+                            <a href="detalhes.html?id=${pub.idPublicacao}" class="btn btn-small" style="margin-top: 1rem;">Ler mais</a>
                         </div>
                     </div>
                 `).join('');
             } catch (error) {
                 console.error('Error loading news:', error);
-                showMessage('Erro ao carregar notícias', 'error');
+                document.getElementById('news-grid').innerHTML = '<div class="alert alert-error" style="grid-column: 1/-1;">Erro ao carregar notícias. Tente novamente mais tarde.</div>';
             }
         }
 

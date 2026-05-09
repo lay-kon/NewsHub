@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Admin - NewsHub</title>
+    <title>Login Autor - NewsHub</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <div class="container" style="max-width: 500px; margin-top: 3rem;">
-        <h1>🔐 Login Administrador</h1>
+        <h1>✍️ Login de Autor</h1>
         
         <form id="login-form">
             <div class="form-group">
@@ -23,7 +23,8 @@
         </form>
 
         <div class="text-center mt-3">
-            <p>Não é administrador? <a href="index.html">Voltar à página inicial</a></p>
+            <p>Não tem conta? <a href="author-register.html">Criar conta de autor</a></p>
+            <p><a href="index.html">Voltar à página inicial</a></p>
         </div>
     </div>
 
@@ -37,8 +38,8 @@
             const password = document.getElementById('password').value;
 
             try {
-                const response = await ApiService.loginAdmin({ username, senha: password });
-                AuthService.login(response.token, 'admin', response.id, response.nome);
+                const response = await ApiService.loginAutor({ username, senha: password });
+                AuthService.login(response.token, 'author', response.autorId, response.nome);
                 showMessage('Login realizado com sucesso!', 'success');
             } catch (error) {
                 console.error('Login error:', error);
