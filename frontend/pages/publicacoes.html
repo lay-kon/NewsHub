@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicações - NewsHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Gerenciar Publicações</h1>
+        <div id="publications-list" class="grid">
+            <!-- Publications will be loaded here -->
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        async function loadPublications() {
+            try {
+                const publicacoes = await ApiService.getPublicacoes();
+                
+                const grid = document.getElementById('publications-list');
+                grid.innerHTML = publicacoes.map(pub => `
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>${pub.titulo}</h3>
+                            <p>${truncateText(pub.resumo)}</p>
+                            <p>Estado: ${pub.estado}</p>
+                            <p><small>Por ${pub.primeiro_nome} ${pub.ultimo_nome}</small></p>
+                            <a href="detalhes.html?id=${pub.idPublicacao}" class="btn">Ver Detalhes</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading publications:', error);
+                showMessage('Erro ao carregar publicações', 'error');
+            }
+        }
+
+        loadPublications();
+    </script>
+</body>
+</html>

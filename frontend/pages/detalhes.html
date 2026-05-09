@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes - NewsHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div id="publication-details">
+            <!-- Publication details will be loaded here -->
+        </div>
+
+        <h2>Comentários</h2>
+        <div id="comments">
+            <!-- Comments will be loaded here -->
+        </div>
+
+        <form id="comment-form">
+            <div class="form-group">
+                <label for="comment-content">Seu comentário:</label>
+                <textarea id="comment-content" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="comment-author">Seu ID de Autor:</label>
+                <input type="number" id="comment-author" required>
+            </div>
+            <button type="submit" class="btn">Comentar</button>
+        </form>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const publicationId = urlParams.get('id');
+
+        async function loadPublication() {
+            try {
+                const pub = await ApiService.getPublicacao(publicationId);
+                const details = document.getElementById('publication-details');
+                details.innerHTML = `
+                    <h1>${pub.titulo}</h1>
+                    <p><small>Por ${pub.primeiro_nome} ${pub.ultimo_nome} em ${formatDate(pub.data_publicacao)}</small></p>
+                    ${pub.imagem_destaque ? `<img src="${pub.imagem_destaque}" alt="${pub.titulo}" style="max-width:100%;">` : ''}
+                    <p>${pub.conteudo}</p>
+                `;
+            } catch (error) {
+                console.error('Error loading publication:', error);
+            }
+        }
+
+        async function loadComments() {
+            try {
+                const comments = await ApiService.getComentarios(publicationId);
+                const container = document.getElementById('comments');
+                container.innerHTML = comments.map(comment => `
+                    <div class="card">
+                        <div class="card-content">
+                            <p>${comment.conteudo}</p>
+                            <p><small>Por ${comment.primeiro_nome} ${comment.ultimo_nome} em ${formatDate(comment.data_hora)}</small></p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading comments:', error);
+            }
+        }
+
+        document.getElementById('comment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                conteudo: document.getElementById('comment-content').value,
+                idpublicacao: parseInt(publicationId),
+                idleitor: parseInt(document.getElementById('comment-author').value)
+            };
+
+            try {
+                await ApiService.createComentario(data);
+                showMessage('Comentário adicionado!');
+                e.target.reset();
+                loadComments();
+            } catch (error) {
+                console.error('Error creating comment:', error);
+                showMessage('Erro ao adicionar comentário', 'error');
+            }
+        });
+
+        if (publicationId) {
+            loadPublication();
+            loadComments();
+        }
+    </script>
+</body>
+</html>

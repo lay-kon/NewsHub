@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - NewsHub</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard Administrador</h1>
+        <button id="logout-btn" class="btn">Logout</button>
+        
+        <h2>Publicações Pendentes</h2>
+        <div id="pending-publications">
+            <!-- Pending publications will be loaded here -->
+        </div>
+
+        <h2>Criar Nova Publicação</h2>
+        <form id="create-publication-form">
+            <div class="form-group">
+                <label for="titulo">Título:</label>
+                <input type="text" id="titulo" required>
+            </div>
+            <div class="form-group">
+                <label for="resumo">Resumo:</label>
+                <textarea id="resumo" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="conteudo">Conteúdo:</label>
+                <textarea id="conteudo" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="idautor">Autor ID:</label>
+                <input type="number" id="idautor" required>
+            </div>
+            <div class="form-group">
+                <label for="idCategoria">Categoria ID:</label>
+                <input type="number" id="idCategoria">
+            </div>
+            <button type="submit" class="btn">Criar Publicação</button>
+        </form>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        if (!AuthService.isLoggedIn()) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            AuthService.logout();
+        });
+
+        async function loadPendingPublications() {
+            try {
+                const publicacoes = await ApiService.getPublicacoes();
+                const pending = publicacoes.filter(p => p.estado === 'pendente');
+                
+                const container = document.getElementById('pending-publications');
+                container.innerHTML = pending.map(pub => `
+                    <div class="card">
+                        <div class="card-content">
+                            <h3>${pub.titulo}</h3>
+                            <p>${truncateText(pub.resumo)}</p>
+                            <button class="btn" onclick="validatePublication(${pub.idPublicacao})">Aprovar</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading pending publications:', error);
+            }
+        }
+
+        async function validatePublication(id) {
+            try {
+                await ApiService.request(`/publicacoes/${id}/validate`, { method: 'POST' });
+                showMessage('Publicação aprovada!');
+                loadPendingPublications();
+            } catch (error) {
+                console.error('Error validating publication:', error);
+                showMessage('Erro ao aprovar publicação', 'error');
+            }
+        }
+
+        document.getElementById('create-publication-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                titulo: document.getElementById('titulo').value,
+                resumo: document.getElementById('resumo').value,
+                conteudo: document.getElementById('conteudo').value,
+                idestado: 1, // pendente
+                idautor: parseInt(document.getElementById('idautor').value),
+                idCategoria: parseInt(document.getElementById('idCategoria').value) || null
+            };
+
+            try {
+                await ApiService.createPublicacao(data);
+                showMessage('Publicação criada com sucesso!');
+                e.target.reset();
+            } catch (error) {
+                console.error('Error creating publication:', error);
+                showMessage('Erro ao criar publicação', 'error');
+            }
+        });
+
+        loadPendingPublications();
+    </script>
+</body>
+</html>
