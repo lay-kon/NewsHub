@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let navLinksHTML = `
             <div class="nav-logo">
-                <a href="index.html"><strong>NewsHub</strong></a>
+                <a href="#" id="nav-logo-link"><strong>NewsHub</strong></a>
             </div>
             <div class="nav-menu">
                 <a href="index.html">Home</a>
@@ -56,8 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!isLoggedIn) {
             navLinksHTML += `
-                <a href="login.html">Admin</a>
-                <a href="author-login.html">Autor</a>
+                <a href="author-login.html">Entrar</a>
             `;
         } else if (userType === 'admin') {
             navLinksHTML += `
@@ -79,6 +78,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         navbar.innerHTML = navLinksHTML;
         document.body.insertBefore(navbar, document.body.firstChild);
+
+        const logoLink = navbar.querySelector('#nav-logo-link');
+        let logoClicks = 0;
+        if (logoLink) {
+            logoLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                logoClicks += 1;
+                if (logoClicks >= 4) {
+                    logoClicks = 0;
+                    window.location.href = 'login.html';
+                }
+                setTimeout(() => {
+                    logoClicks = 0;
+                }, 1500);
+            });
+        }
     }
 });
 
