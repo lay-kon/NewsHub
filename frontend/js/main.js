@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let navLinksHTML = `
             <div class="nav-logo">
-                <a href="#" id="nav-logo-link"><strong>NewsHub</strong></a>
+                <a href="index.html" id="nav-logo-link"><strong>NewsHub</strong></a>
             </div>
             <div class="nav-menu">
                 <a href="index.html">Home</a>
@@ -81,17 +81,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const logoLink = navbar.querySelector('#nav-logo-link');
         let logoClicks = 0;
+        let logoTimer = null;
         if (logoLink) {
             logoLink.addEventListener('click', function(event) {
                 event.preventDefault();
                 logoClicks += 1;
-                if (logoClicks >= 4) {
+
+                if (logoClicks >= 4 && !isLoggedIn) {
                     logoClicks = 0;
+                    if (logoTimer) {
+                        clearTimeout(logoTimer);
+                        logoTimer = null;
+                    }
                     window.location.href = 'login.html';
+                    return;
                 }
-                setTimeout(() => {
+
+                if (logoTimer) {
+                    clearTimeout(logoTimer);
+                }
+
+                logoTimer = setTimeout(() => {
                     logoClicks = 0;
-                }, 1500);
+                    logoTimer = null;
+                    window.location.href = 'index.html';
+                }, 3000);
             });
         }
     }

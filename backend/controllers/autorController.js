@@ -29,6 +29,11 @@ class AutorController {
     static async create(req, res) {
         try {
             const { primeiro_nome, ultimo_nome, email, username, senha, biografia, foto_perfil } = req.body;
+
+            if (!primeiro_nome || !ultimo_nome || !email || !username || !senha) {
+                return res.status(400).json({ message: 'Campos obrigatórios ausentes' });
+            }
+
             const hashedPassword = await bcrypt.hash(senha, 10);
             const id = await AutorModel.create({
                 primeiro_nome,
@@ -36,8 +41,8 @@ class AutorController {
                 email,
                 username,
                 senha: hashedPassword,
-                biografia,
-                foto_perfil
+                biografia: biografia || null,
+                foto_perfil: foto_perfil || null
             });
             res.status(201).json({ id, message: 'Autor criado com sucesso' });
         } catch (error) {
@@ -49,16 +54,20 @@ class AutorController {
     static async update(req, res) {
         try {
             const { primeiro_nome, ultimo_nome, email, username, senha, biografia, foto_perfil } = req.body;
-            const hashedPassword = senha ? await bcrypt.hash(senha, 10) : undefined;
-            await AutorModel.update(req.params.id, {
+            const updateData = {
                 primeiro_nome,
                 ultimo_nome,
                 email,
                 username,
-                senha: hashedPassword || req.body.senha,
-                biografia,
-                foto_perfil
-            });
+                biografia: biografia ?? null,
+                foto_perfil: foto_perfil ?? null
+            };
+
+            if (senha) {
+                updateData.senha = await bcrypt.hash(senha, 10);
+            }
+
+            await AutorModel.update(req.params.id, updateData);
             res.json({ message: 'Autor atualizado com sucesso' });
         } catch (error) {
             res.status(500).json({ error: error.message });

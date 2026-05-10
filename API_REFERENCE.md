@@ -16,20 +16,42 @@ Tokens são obtidos via login e expiram em 24 horas.
 ### POST `/api/admins/login`
 **Faça login como administrador**
 
-**Request:**
+O login admin é realizado em duas etapas:
+
+1. Envie `username` e `senha`.
+2. Se a senha estiver correta, o servidor retorna `pinRequired: true` e o `idAdm`.
+3. Envie `adminId` e `pin` para receber o token JWT.
+
+**Request etapa 1:**
 ```json
 {
-  "username": "admin",
-  "senha": "sua_senha"
+  "username": "admuser",
+  "senha": "AdmUserSecret2026!"
 }
 ```
 
-**Response:** `200 OK`
+**Response etapa 1:** `200 OK`
+```json
+{
+  "pinRequired": true,
+  "idAdm": 1
+}
+```
+
+**Request etapa 2:**
+```json
+{
+  "adminId": 1,
+  "pin": "97689763"
+}
+```
+
+**Response etapa 2:** `200 OK`
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5...",
   "id": 1,
-  "username": "admin",
+  "username": "admuser",
   "nome": "Admin NewsHub",
   "email": "admin@newshub.com"
 }

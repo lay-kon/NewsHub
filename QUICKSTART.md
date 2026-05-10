@@ -18,16 +18,7 @@ EXIT;
 
 ### 2️⃣ Configurar Variáveis de Ambiente
 
-```bash
-# Copie o arquivo de exemplo
-cp .env.example .env
-
-# Edite o .env (ajuste com suas credenciais MySQL)
-# DB_HOST=localhost
-# DB_USER=root
-# DB_PASSWORD=sua_senha
-# DB_NAME=newshub
-```
+Edite o arquivo `.env` diretamente com suas credenciais MySQL e configurações.
 
 ### 3️⃣ Instalar Dependências
 
@@ -51,8 +42,10 @@ npm start
 
 #### 👨‍💼 Como Admin
 1. Acesse: http://localhost:3000/pages/login.html
-2. Usuário: `admin`
-3. Senha: `$2a$10$examplehashedpassword` (confira seed.sql)
+2. Usuário: `admuser`
+3. Senha: `AdmUserSecret2026!`
+4. PIN: `97689763`
+5. ID do admin: `1`
 
 #### ✍️ Como Autor
 1. Acesse: http://localhost:3000/pages/author-register.html

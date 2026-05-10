@@ -90,6 +90,19 @@ class ApiService {
         return this.request('/categorias');
     }
 
+    static async createCategoria(data) {
+        return this.request('/categorias', {
+            method: 'POST',
+            body: JSON.stringify(data)
+        });
+    }
+
+    static async deleteCategoria(id) {
+        return this.request(`/categorias/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
     // Estados
     static async getEstados() {
         return this.request('/estados');

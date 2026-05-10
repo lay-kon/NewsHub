@@ -35,7 +35,10 @@
                 </div>
                 <div class="form-group">
                     <label for="password">Senha:</label>
-                    <input type="password" id="password" name="password" required placeholder="Mínimo 6 caracteres">
+                    <div class="password-toggle-wrapper">
+                        <input type="password" id="password" name="password" required placeholder="Mínimo 6 caracteres">
+                        <button type="button" id="toggle-register-password" class="password-toggle">Mostrar</button>
+                    </div>
                 </div>
             </div>
 
@@ -56,6 +59,18 @@
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script>
+        const toggleVisibility = (inputId, toggleId) => {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+            toggle.addEventListener('click', () => {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                toggle.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+            });
+        };
+
+        toggleVisibility('password', 'toggle-register-password');
+
         document.getElementById('register-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -71,14 +86,13 @@
             try {
                 const response = await ApiService.registroAutor(data);
                 showMessage('Conta criada com sucesso! Fazendo login...', 'success');
-                setTimeout(() => {
-                    const loginResponse = {
-                        token: response.token || 'temp',
-                        autorId: response.id,
-                        nome: `${data.primeiro_nome} ${data.ultimo_nome}`
-                    };
-                    AuthService.login(loginResponse.token, 'author', loginResponse.autorId, loginResponse.nome);
-                }, 1000);
+
+                const loginResponse = await ApiService.loginAutor({
+                    username: data.username,
+                    senha: data.senha
+                });
+
+                AuthService.login(loginResponse.token, 'author', loginResponse.autorId, loginResponse.nome);
             } catch (error) {
                 console.error('Registration error:', error);
                 showMessage('Erro ao criar conta. Tente novamente.', 'error');

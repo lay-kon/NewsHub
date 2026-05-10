@@ -6,6 +6,7 @@ const authMiddleware = require('../middlewares/authMiddleware');
 // Login deve vir antes de rotas com :id
 router.post('/login', AutorController.login);
 router.post('/registro', AutorController.create);
+router.post('/logout', (req, res) => res.json({ message: 'Logged out' }));
 router.get('/', AutorController.getAll);
 router.get('/:id', AutorController.getById);
 router.put('/:id', authMiddleware, AutorController.update);

@@ -17,7 +17,10 @@
             </div>
             <div class="form-group">
                 <label for="password">Senha:</label>
-                <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+                <div class="password-toggle-wrapper">
+                    <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+                    <button type="button" id="toggle-author-login-password" class="password-toggle">Mostrar</button>
+                </div>
             </div>
             <button type="submit" class="btn btn-block">Entrar</button>
         </form>
@@ -32,6 +35,18 @@
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script>
+        const toggleVisibility = (inputId, toggleId) => {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+            toggle.addEventListener('click', () => {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                toggle.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+            });
+        };
+
+        toggleVisibility('password', 'toggle-author-login-password');
+
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;

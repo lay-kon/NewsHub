@@ -33,11 +33,14 @@ Servidor deve iniciar em: **http://localhost:3000**
 ### 2️⃣ Login de Admin
 - **URL**: http://localhost:3000/pages/login.html
 - **Credenciais padrão**:
-  - Usuário: `admin`
-  - Senha: Confira o seed.sql para a senha hasheada
+  - Usuário: `admuser`
+  - Senha: `AdmUserSecret2026!`
+  - PIN: `97689763`
+  - ID do admin: `1`
   
 #### Ações de Teste:
-- [ ] Fazer login com credenciais corretas
+- [ ] Fazer login com usuário e senha corretos
+- [ ] Confirmar PIN e ID na segunda etapa
 - [ ] Redirecionar para dashboard
 - [ ] Testar login com credenciais incorretas (deve mostrar erro)
 - [ ] Verificar navbar mostrando nome do admin
@@ -119,7 +122,15 @@ curl http://localhost:3000/api/publicacoes
 ```bash
 curl -X POST http://localhost:3000/api/admins/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"admin","senha":"password"}'
+  -d '{"username":"admuser","senha":"AdmUserSecret2026!"}'
+```
+**Esperado**: JSON com `pinRequired: true` e `idAdm`
+
+Em seguida:
+```bash
+curl -X POST http://localhost:3000/api/admins/login \
+  -H "Content-Type: application/json" \
+  -d '{"adminId":1,"pin":"97689763"}'
 ```
 **Esperado**: JSON com token e dados do admin
 

@@ -48,15 +48,19 @@ class AdminController {
     static async update(req, res) {
         try {
             const { primeiro_nome, ultimo_nome, email, username, senha, pin } = req.body;
-            const hashedPassword = senha ? await bcrypt.hash(senha, 10) : undefined;
-            await AdminModel.update(req.params.id, {
+            const updateData = {
                 primeiro_nome,
                 ultimo_nome,
                 email,
                 username,
-                senha: hashedPassword || req.body.senha,
                 pin
-            });
+            };
+
+            if (senha) {
+                updateData.senha = await bcrypt.hash(senha, 10);
+            }
+
+            await AdminModel.update(req.params.id, updateData);
             res.json({ message: 'Admin updated' });
         } catch (error) {
             res.status(500).json({ error: error.message });
@@ -76,12 +80,35 @@ class AdminController {
     // Login
     static async login(req, res) {
         try {
-            const { username, senha } = req.body;
-            const admin = await AdminModel.getByUsername(username);
-            if (!admin) return res.status(401).json({ message: 'Credenciais inválidas' });
+            const { username, senha, pin, adminId } = req.body;
+            let admin = null;
 
-            const isValid = await bcrypt.compare(senha, admin.senha);
-            if (!isValid) return res.status(401).json({ message: 'Credenciais inválidas' });
+            if (username) {
+                admin = await AdminModel.getByUsername(username);
+            } else if (adminId) {
+                admin = await AdminModel.getById(adminId);
+            }
+
+            if (!admin) {
+                return res.status(401).json({ message: 'Credenciais inválidas' });
+            }
+
+            if (senha) {
+                const isValid = await bcrypt.compare(senha, admin.senha);
+                if (!isValid) return res.status(401).json({ message: 'Credenciais inválidas' });
+
+                if (!pin) {
+                    return res.json({ pinRequired: true, idAdm: admin.idAdm });
+                }
+            }
+
+            if (!pin || !adminId) {
+                return res.status(400).json({ message: 'PIN e ID necessários' });
+            }
+
+            if (admin.idAdm !== adminId || admin.pin !== pin) {
+                return res.status(401).json({ message: 'PIN inválido' });
+            }
 
             const token = jwt.sign({ id: admin.idAdm, role: 'admin' }, env.JWT_SECRET, { expiresIn: '24h' });
             res.json({ 

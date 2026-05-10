@@ -17,10 +17,32 @@
             </div>
             <div class="form-group">
                 <label for="password">Senha:</label>
-                <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+                <div class="password-toggle-wrapper">
+                    <input type="password" id="password" name="password" required placeholder="Digite sua senha">
+                    <button type="button" id="toggle-login-password" class="password-toggle">Mostrar</button>
+                </div>
             </div>
             <button type="submit" class="btn btn-block">Entrar</button>
         </form>
+
+        <div id="pin-card" class="card" style="display: none; margin-top: 1.5rem; padding: 1.5rem; border: 1px solid #ddd; border-radius: 12px; background: #fafafa;">
+            <h2>Confirmação de Segurança</h2>
+            <p>Insira seu PIN e o ID do administrador.</p>
+            <form id="pin-form">
+                <div class="form-group">
+                    <label for="admin_id">ID do Administrador:</label>
+                    <input type="number" id="admin_id" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="admin_pin">PIN:</label>
+                    <div class="password-toggle-wrapper">
+                        <input type="password" id="admin_pin" required placeholder="Digite seu PIN exclusivo">
+                        <button type="button" id="toggle-admin-pin" class="password-toggle">Mostrar</button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-block">Confirmar PIN</button>
+            </form>
+        </div>
 
         <div class="text-center mt-3">
             <p>Não é administrador? <a href="index.html">Voltar à página inicial</a></p>
@@ -31,6 +53,21 @@
     <script src="../js/api.js"></script>
     <script src="../js/auth.js"></script>
     <script>
+        const toggleVisibility = (inputId, toggleId) => {
+            const input = document.getElementById(inputId);
+            const toggle = document.getElementById(toggleId);
+            toggle.addEventListener('click', () => {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                toggle.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+            });
+        };
+
+        toggleVisibility('password', 'toggle-login-password');
+        toggleVisibility('admin_pin', 'toggle-admin-pin');
+
+        let pendingAdminId = null;
+
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -38,11 +75,39 @@
 
             try {
                 const response = await ApiService.loginAdmin({ username, senha: password });
+
+                if (response.pinRequired) {
+                    pendingAdminId = response.idAdm;
+                    document.getElementById('admin_id').value = pendingAdminId;
+                    document.getElementById('login-form').style.display = 'none';
+                    document.getElementById('pin-card').style.display = 'block';
+                    showMessage('Senha válida. Insira o PIN para continuar.', 'info');
+                    return;
+                }
+
                 AuthService.login(response.token, 'admin', response.id, response.nome);
                 showMessage('Login realizado com sucesso!', 'success');
             } catch (error) {
                 console.error('Login error:', error);
                 showMessage('Erro no login. Verifique suas credenciais.', 'error');
+            }
+        });
+
+        toggleVisibility('password', 'toggle-login-password');
+        toggleVisibility('admin_pin', 'toggle-admin-pin');
+
+        document.getElementById('pin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pin = document.getElementById('admin_pin').value;
+            const adminId = parseInt(document.getElementById('admin_id').value, 10);
+
+            try {
+                const response = await ApiService.loginAdmin({ adminId, pin });
+                AuthService.login(response.token, 'admin', response.id, response.nome);
+                showMessage('Login realizado com sucesso!', 'success');
+            } catch (error) {
+                console.error('PIN error:', error);
+                showMessage('PIN inválido. Verifique o ID e o PIN.', 'error');
             }
         });
     </script>

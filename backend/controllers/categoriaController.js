@@ -22,6 +22,10 @@ class CategoriaController {
 
     static async create(req, res) {
         try {
+            if (!req.user || req.user.role !== 'admin') {
+                return res.status(403).json({ message: 'Apenas administradores podem criar categorias' });
+            }
+
             const { nome } = req.body;
             const id = await CategoriaModel.create(nome);
             res.status(201).json({ id, message: 'Categoria criada com sucesso' });
@@ -32,6 +36,10 @@ class CategoriaController {
 
     static async delete(req, res) {
         try {
+            if (!req.user || req.user.role !== 'admin') {
+                return res.status(403).json({ message: 'Apenas administradores podem excluir categorias' });
+            }
+
             await CategoriaModel.delete(req.params.id);
             res.json({ message: 'Categoria deletada com sucesso' });
         } catch (error) {

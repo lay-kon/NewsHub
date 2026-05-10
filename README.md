@@ -73,10 +73,7 @@ EXIT;
 
 #### 4. Configure as variáveis de ambiente
 ```bash
-# Copie o arquivo de exemplo
-cp .env.example .env
-
-# Edite o .env com suas configurações
+# Edite o arquivo .env diretamente com suas configurações
 nano .env
 ```
 
@@ -107,70 +104,17 @@ npm start
 
 O script de seed cria um administrador padrão:
 
-- **Usuário**: `admin`
-- **Senha**: Use a senha hasheada no seed.sql
-- **Email**: admin@newshub.com
+- **Usuário**: `admuser`
+- **Senha**: `AdmUserSecret2026!`
+- **PIN**: `97689763`
+- **ID do admin**: `1`
+- **Email**: `admin@newshub.com`
 
-⚠️ **Importante**: Altere a senha do administrador padrão em produção!
+O login admin é feito em duas etapas:
+1. validação de `username` + `senha`
+2. confirmação de `adminId` + `pin`
 
-## 📚 API Endpoints
-
-### 👤 Administradores
-```
-POST   /api/admins/login     - Fazer login
-GET    /api/admins           - Listar administradores (requer autenticação)
-GET    /api/admins/:id       - Obter administrador por ID
-POST   /api/admins           - Criar novo administrador
-PUT    /api/admins/:id       - Atualizar administrador
-DELETE /api/admins/:id       - Deletar administrador
-```
-
-### ✍️ Autores
-```
-POST   /api/autores/login    - Fazer login como autor
-POST   /api/autores/registro - Registrar novo autor
-GET    /api/autores          - Listar todos os autores
-GET    /api/autores/:id      - Obter autor por ID
-PUT    /api/autores/:id      - Atualizar dados do autor
-DELETE /api/autores/:id      - Deletar autor
-```
-
-### 📰 Publicações
-```
-GET    /api/publicacoes           - Listar todas as publicações
-GET    /api/publicacoes/:id       - Obter publicação específica
-GET    /api/publicacoes/estado/:estado - Listar por estado (publicado, pendente, etc)
-POST   /api/publicacoes           - Criar nova publicação (requer autenticação)
-PUT    /api/publicacoes/:id       - Atualizar publicação (requer autenticação)
-DELETE /api/publicacoes/:id       - Deletar publicação (requer autenticação)
-POST   /api/publicacoes/:id/validate - Validar/aprovar publicação (admin)
-```
-
-### 💬 Comentários
-```
-GET    /api/comentarios                    - Listar todos os comentários (admin)
-GET    /api/comentarios/:id                - Obter comentário específico
-GET    /api/comentarios/publicacao/:id     - Listar comentários de uma publicação
-POST   /api/comentarios                    - Criar novo comentário
-PUT    /api/comentarios/:id                - Atualizar comentário (requer autenticação)
-DELETE /api/comentarios/:id                - Deletar comentário (requer autenticação)
-POST   /api/comentarios/:id/approve        - Aprovar comentário (admin)
-POST   /api/comentarios/:id/reject         - Rejeitar comentário (admin)
-```
-
-### 📂 Categorias
-```
-GET    /api/categorias           - Listar todas as categorias
-GET    /api/categorias/:id       - Obter categoria específica
-POST   /api/categorias           - Criar categoria (requer autenticação)
-DELETE /api/categorias/:id       - Deletar categoria (requer autenticação)
-```
-
-### 📊 Estados
-```
-GET    /api/estados     - Listar todos os estados (rascunho, pendente, publicado, rejeitado)
-GET    /api/estados/:id - Obter estado específico
-```
+> Consulte `API_REFERENCE.md` para detalhes completos dos endpoints e do fluxo de login.
 
 ## 🛠️ Tecnologias Utilizadas
 

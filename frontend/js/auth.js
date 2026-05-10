@@ -12,7 +12,17 @@ class AuthService {
         }
     }
 
-    static logout() {
+    static async logout() {
+        try {
+            const userType = this.getUserType();
+            if (userType === 'admin') {
+                await ApiService.request('/admins/logout', { method: 'POST' });
+            } else if (userType === 'author') {
+                await ApiService.request('/autores/logout', { method: 'POST' });
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
         localStorage.removeItem('token');
         localStorage.removeItem('userType');
         localStorage.removeItem('userId');

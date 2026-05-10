@@ -143,7 +143,7 @@ ESTADOS (2 endpoints)
 - ✅ **API_REFERENCE.md** - Todos endpoints com exemplos
 - ✅ **DATABASE_MODEL.md** - Estrutura do BD
 - ✅ **TESTING.md** - Checklist de testes
-- ✅ **.env.example** - Template de configuração
+- ✅ **.env** - Configuração de ambiente
 
 ---
 
@@ -151,8 +151,7 @@ ESTADOS (2 endpoints)
 
 ### 1️⃣ Setup (5 minutos)
 ```bash
-cp .env.example .env
-# Configure o .env com suas credenciais MySQL
+# Configure o arquivo .env diretamente com suas credenciais MySQL
 
 mysql -u root -p newshub < database/schema.sql
 mysql -u root -p newshub < database/seed.sql
@@ -237,7 +236,7 @@ newshub/
 │   ├── API_REFERENCE.md
 │   ├── DATABASE_MODEL.md
 │   ├── TESTING.md
-│   └── .env.example
+│   └── .env
 ├── 🔧 Backend
 │   ├── server.js
 │   ├── app.js
