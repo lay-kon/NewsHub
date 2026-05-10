@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS publicacoes (
     imagem_destaque VARCHAR(255),
     arquivo_pdf VARCHAR(255),
     idestado INT NOT NULL,
-    idautor INT NOT NULL,
+    idautor INT,
     idCategoria INT,
     FOREIGN KEY (idCategoria) REFERENCES categorias(idCategoria),
     FOREIGN KEY (idestado) REFERENCES estados(idestado),

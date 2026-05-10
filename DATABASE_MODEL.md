@@ -44,7 +44,7 @@ newshub
   ultimo_nome: "NewsHub",
   email: "admin@newshub.com",
   username: "admin",
-  senha: "$2a$10$examplehashedpassword",
+  senha: "$2a$10$53P2jxjJf5OK1iaWEM7tuOd0n1NrYumTkxmch0jHngTIjFtqpsOdW",
   pin: "1234"
 }
 ```

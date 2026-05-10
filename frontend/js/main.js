@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <a href="#" id="nav-logo-link"><strong>NewsHub</strong></a>
             </div>
             <div class="nav-menu">
-                <a href="index.html">Home</a>
+                <a href="/">Home</a>
                 <a href="publicacoes.html">Publicações</a>
         `;
         
@@ -81,17 +81,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const logoLink = navbar.querySelector('#nav-logo-link');
         let logoClicks = 0;
+        let logoTimer = null;
         if (logoLink) {
             logoLink.addEventListener('click', function(event) {
                 event.preventDefault();
                 logoClicks += 1;
-                if (logoClicks >= 4) {
+                clearTimeout(logoTimer);
+
+                if (logoClicks === 4) {
                     logoClicks = 0;
-                    window.location.href = 'login.html';
+                    window.location.href = '/pages/login.html';
+                    return;
                 }
-                setTimeout(() => {
+
+                logoTimer = setTimeout(() => {
+                    if (logoClicks === 1) {
+                        window.location.reload();
+                    }
                     logoClicks = 0;
-                }, 1500);
+                }, 1200);
             });
         }
     }

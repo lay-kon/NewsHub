@@ -1,3 +1,9 @@
 {
-    "terminal.integrated.fontLigatures.enabled": true
+    "terminal.integrated.fontLigatures.enabled": true,
+    "chat.tools.terminal.autoApprove": {
+        "/^node -e \"const bcrypt=require\\('bcryptjs'\\); console\\.log\\('admin:', bcrypt\\.hashSync\\('admin123',10\\)\\); console\\.log\\('joao:', bcrypt\\.hashSync\\('senha123',10\\)\\); console\\.log\\('maria:', bcrypt\\.hashSync\\('senha123',10\\)\\);\"$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
 }

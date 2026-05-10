@@ -52,7 +52,7 @@ npm start
 #### 👨‍💼 Como Admin
 1. Acesse: http://localhost:3000/pages/login.html
 2. Usuário: `admin`
-3. Senha: `$2a$10$examplehashedpassword` (confira seed.sql)
+3. Senha: `admin123`
 
 #### ✍️ Como Autor
 1. Acesse: http://localhost:3000/pages/author-register.html

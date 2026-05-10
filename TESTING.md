@@ -34,7 +34,7 @@ Servidor deve iniciar em: **http://localhost:3000**
 - **URL**: http://localhost:3000/pages/login.html
 - **Credenciais padrão**:
   - Usuário: `admin`
-  - Senha: Confira o seed.sql para a senha hasheada
+  - Senha: `admin123`
   
 #### Ações de Teste:
 - [ ] Fazer login com credenciais corretas

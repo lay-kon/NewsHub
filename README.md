@@ -105,13 +105,13 @@ npm start
 
 ## 🔑 Credenciais Padrão
 
-O script de seed cria um administrador padrão:
+O script de seed cria um administrador padrão com a senha armazenada criptografada:
 
 - **Usuário**: `admin`
-- **Senha**: Use a senha hasheada no seed.sql
+- **Senha**: `admin123`
 - **Email**: admin@newshub.com
 
-⚠️ **Importante**: Altere a senha do administrador padrão em produção!
+⚠️ **Importante**: O valor armazenado em banco é um hash bcrypt. Troque esta conta padrão em produção!
 
 ## 📚 API Endpoints
 
